@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}
+Stock In - SLEEP STUDIO
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .stock-in-container {
+        max-width: 500px;
+        margin: 70px auto;
+        padding: 0 20px;
+    }
+
+    .box {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    h1 {
+        margin-top: 0;
+        margin-bottom: 25px;
+        font-size: 28px;
+    }
+
+    .product {
+        background: #f5f6f8;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        line-height: 1.7;
+    }
+
+    .product-name {
+        font-size: 17px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 7px;
+        box-sizing: border-box;
+        font-size: 16px;
+        margin-bottom: 20px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #999;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #222;
+        color: white;
+        border: none;
+        border-radius: 7px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #444;
+    }
+
+    .back {
+        display: block;
+        text-align: center;
+        margin-top: 16px;
+        text-decoration: none;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .back:hover {
+        color: #222;
+    }
+
+    @media (max-width: 600px) {
+
+        .stock-in-container {
+            margin: 30px auto;
+        }
+
+        .box {
+            padding: 24px;
+        }
+
+    }
+
+</style>
+
+
+<div class="stock-in-container">
+
+    <div class="box">
+
+        <h1>
+            Stock In
+        </h1>
+
+
+        <div class="product">
+
+            <div class="product-name">
+                <strong>
+                    {{ product.name }}
+                </strong>
+            </div>
+
+            Category:
+            {{ product.get_category_display }}
+
+            <br>
+
+            Current Stock:
+            <strong>
+                {{ product.stock_quantity }}
+            </strong>
+
+        </div>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+
+            <label for="quantity">
+                Quantity Received
+            </label>
+
+
+            <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                min="1"
+                required
+            >
+
+
+            <button type="submit">
+                ADD STOCK
+            </button>
+
+        </form>
+
+
+        <a
+            href="{% url 'inventory' %}"
+            class="back"
+        >
+            ← Back to Inventory
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

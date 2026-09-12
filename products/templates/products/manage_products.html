@@ -1,0 +1,1251 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Product Management</h1>
+        <p>Manage products and manufacturers</p>
+    </div>
+</div>
+
+
+<div class="management-actions">
+
+    <a href="?tab=products"
+       class="tab-button {% if tab == 'products' %}active{% endif %}">
+        Products
+    </a>
+
+    <a href="?tab=add"
+       class="tab-button {% if tab == 'add' %}active{% endif %}">
+        + Add Product
+    </a>
+
+    <a href="?tab=manufacturers"
+       class="tab-button {% if tab == 'manufacturers' %}active{% endif %}">
+        Manufacturers
+    </a>
+
+</div>
+
+
+{% if tab == "products" %}
+
+<!-- PRODUCTS TAB -->
+
+<div class="filter-card">
+
+    <form method="GET">
+
+        <input type="hidden" name="tab" value="products">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Search product..."
+            value="{{ search }}"
+        >
+
+        <select name="category">
+
+            <option value="">
+                All Categories
+            </option>
+
+            <option
+                value="MATTRESS"
+                {% if selected_category == "MATTRESS" %}selected{% endif %}
+            >
+                Mattress
+            </option>
+
+            <option
+                value="PILLOW"
+                {% if selected_category == "PILLOW" %}selected{% endif %}
+            >
+                Pillow
+            </option>
+
+            <option
+                value="PROTECTOR"
+                {% if selected_category == "PROTECTOR" %}selected{% endif %}
+            >
+                Protector
+            </option>
+
+            <option
+                value="COMFORTER"
+                {% if selected_category == "COMFORTER" %}selected{% endif %}
+            >
+                Comforter
+            </option>
+
+        </select>
+
+
+        <select name="manufacturer">
+
+            <option value="">
+                All Manufacturers
+            </option>
+
+            {% for manufacturer in manufacturers %}
+
+            <option
+                value="{{ manufacturer.id }}"
+                {% if selected_manufacturer == manufacturer.id|stringformat:"s" %}
+                    selected
+                {% endif %}
+            >
+                {{ manufacturer.name }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+</div>
+
+
+<div class="table-card">
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Manufacturer</th>
+                <th>Size</th>
+                <th>Thickness</th>
+                <th>Cost Price</th>
+                <th>Selling Price</th>
+                <th>Stock</th>
+                <th>Low Stock At</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for product in products %}
+
+            <tr>
+
+                <td>
+                    {{ product.name }}
+                </td>
+
+                <td>
+                    {{ product.get_category_display }}
+                </td>
+
+                <td>
+                    {{ product.manufacturer.name }}
+                </td>
+
+                <td>
+                    {{ product.size|default:"-" }}
+                </td>
+
+                <td>
+                    {{ product.thickness|default:"-" }}
+                </td>
+
+                <td>
+                    ₹{{ product.cost_price }}
+                </td>
+
+                <td>
+                    ₹{{ product.selling_price }}
+                </td>
+
+                <td>
+                    {{ product.stock_quantity }}
+                </td>
+
+                <td>
+                    {{ product.low_stock_threshold }}
+                </td>
+
+                <td>
+
+                    {% if product.is_active %}
+
+                        <span class="status active">
+                            Active
+                        </span>
+
+                    {% else %}
+
+                        <span class="status inactive">
+                            Inactive
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td class="actions">
+
+                    <a
+                        href="?tab=edit&edit={{ product.id }}"
+                        class="edit-button"
+                    >
+                        Edit
+                    </a>
+
+
+                    <form
+                        method="POST"
+                        style="display:inline;"
+                    >
+
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="action"
+                            value="toggle_product"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="product_id"
+                            value="{{ product.id }}"
+                        >
+
+                        {% if product.is_active %}
+
+                            <button
+                                type="submit"
+                                class="deactivate-button"
+                            >
+                                Deactivate
+                            </button>
+
+                        {% else %}
+
+                            <button
+                                type="submit"
+                                class="activate-button"
+                            >
+                                Activate
+                            </button>
+
+                        {% endif %}
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="11" class="empty">
+                    No products found.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+{% elif tab == "add" %}
+
+<!-- ADD PRODUCT TAB -->
+
+<div class="form-card">
+
+    <h2>
+        Add Product
+    </h2>
+
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="action"
+            value="add_product"
+        >
+
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label>
+                    Product Name
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Example: Ortho Mattress"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Category
+                </label>
+
+                <select name="category" required>
+
+                    <option value="">
+                        Select Category
+                    </option>
+
+                    <option value="MATTRESS">
+                        Mattress
+                    </option>
+
+                    <option value="PILLOW">
+                        Pillow
+                    </option>
+
+                    <option value="PROTECTOR">
+                        Protector
+                    </option>
+
+                    <option value="COMFORTER">
+                        Comforter
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Manufacturer
+                </label>
+
+                <select name="manufacturer" required>
+
+                    <option value="">
+                        Select Manufacturer
+                    </option>
+
+                    {% for manufacturer in manufacturers %}
+
+                    <option value="{{ manufacturer.id }}">
+                        {{ manufacturer.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Size
+                </label>
+
+                <input
+                    type="text"
+                    name="size"
+                    placeholder="Example: 72 x 60"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Thickness
+                </label>
+
+                <input
+                    type="text"
+                    name="thickness"
+                    placeholder="Example: 6 inch"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Cost Price
+                </label>
+
+                <input
+                    type="number"
+                    name="cost_price"
+                    step="0.01"
+                    min="0"
+                    placeholder="₹0.00"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Selling Price
+                </label>
+
+                <input
+                    type="number"
+                    name="selling_price"
+                    step="0.01"
+                    min="0"
+                    placeholder="₹0.00"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Opening Stock
+                </label>
+
+                <input
+                    type="number"
+                    name="stock_quantity"
+                    min="0"
+                    value="0"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Low Stock Alert At
+                </label>
+
+                <input
+                    type="number"
+                    name="low_stock_threshold"
+                    min="0"
+                    value="5"
+                    required
+                >
+
+                <small class="field-help">
+                    Show a low-stock warning when stock reaches this level.
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Add Product
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+{% elif tab == "edit" %}
+
+<!-- EDIT PRODUCT TAB -->
+
+<div class="form-card">
+
+    <h2>
+        Edit Product
+    </h2>
+
+
+    {% if edit_product %}
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="action"
+            value="edit_product"
+        >
+
+        <input
+            type="hidden"
+            name="product_id"
+            value="{{ edit_product.id }}"
+        >
+
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label>
+                    Product Name
+                </label>
+
+                <input
+                    type="text"
+                    name="name"
+                    value="{{ edit_product.name }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Category
+                </label>
+
+                <select name="category" required>
+
+                    <option
+                        value="MATTRESS"
+                        {% if edit_product.category == "MATTRESS" %}selected{% endif %}
+                    >
+                        Mattress
+                    </option>
+
+                    <option
+                        value="PILLOW"
+                        {% if edit_product.category == "PILLOW" %}selected{% endif %}
+                    >
+                        Pillow
+                    </option>
+
+                    <option
+                        value="PROTECTOR"
+                        {% if edit_product.category == "PROTECTOR" %}selected{% endif %}
+                    >
+                        Protector
+                    </option>
+
+                    <option
+                        value="COMFORTER"
+                        {% if edit_product.category == "COMFORTER" %}selected{% endif %}
+                    >
+                        Comforter
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Manufacturer
+                </label>
+
+                <select name="manufacturer" required>
+
+                    {% for manufacturer in manufacturers %}
+
+                    <option
+                        value="{{ manufacturer.id }}"
+                        {% if edit_product.manufacturer_id == manufacturer.id %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ manufacturer.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Size
+                </label>
+
+                <input
+                    type="text"
+                    name="size"
+                    value="{{ edit_product.size }}"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Thickness
+                </label>
+
+                <input
+                    type="text"
+                    name="thickness"
+                    value="{{ edit_product.thickness }}"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Cost Price
+                </label>
+
+                <input
+                    type="number"
+                    name="cost_price"
+                    step="0.01"
+                    min="0"
+                    value="{{ edit_product.cost_price }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Selling Price
+                </label>
+
+                <input
+                    type="number"
+                    name="selling_price"
+                    step="0.01"
+                    min="0"
+                    value="{{ edit_product.selling_price }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Low Stock Alert At
+                </label>
+
+                <input
+                    type="number"
+                    name="low_stock_threshold"
+                    min="0"
+                    value="{{ edit_product.low_stock_threshold }}"
+                    required
+                >
+
+                <small class="field-help">
+                    Show a low-stock warning when stock reaches this level.
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Save Changes
+            </button>
+
+            <a
+                href="?tab=products"
+                class="cancel-button"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+    {% endif %}
+
+</div>
+
+
+{% elif tab == "manufacturers" %}
+
+<!-- MANUFACTURERS TAB -->
+
+<div class="form-card">
+
+    <h2>
+
+        {% if edit_manufacturer %}
+            Edit Manufacturer
+        {% else %}
+            Add Manufacturer
+        {% endif %}
+
+    </h2>
+
+
+    {% if edit_manufacturer %}
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="action"
+            value="edit_manufacturer"
+        >
+
+        <input
+            type="hidden"
+            name="manufacturer_id"
+            value="{{ edit_manufacturer.id }}"
+        >
+
+
+        <div class="manufacturer-form">
+
+            <input
+                type="text"
+                name="name"
+                value="{{ edit_manufacturer.name }}"
+                required
+            >
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Save Changes
+            </button>
+
+            <a
+                href="?tab=manufacturers"
+                class="cancel-button"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+    {% else %}
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="action"
+            value="add_manufacturer"
+        >
+
+
+        <div class="manufacturer-form">
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Manufacturer name"
+                required
+            >
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                Add Manufacturer
+            </button>
+
+        </div>
+
+    </form>
+
+    {% endif %}
+
+</div>
+
+
+<div class="table-card">
+
+    <h2>
+        Manufacturers
+    </h2>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for manufacturer in manufacturers %}
+
+            <tr>
+
+                <td>
+                    {{ manufacturer.name }}
+                </td>
+
+                <td>
+
+                    {% if manufacturer.is_active %}
+
+                        <span class="status active">
+                            Active
+                        </span>
+
+                    {% else %}
+
+                        <span class="status inactive">
+                            Inactive
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+
+                <td class="actions">
+
+                    <a
+                        href="?tab=manufacturers&manufacturer_edit={{ manufacturer.id }}"
+                        class="edit-button"
+                    >
+                        Edit
+                    </a>
+
+
+                    <form
+                        method="POST"
+                        style="display:inline;"
+                    >
+
+                        {% csrf_token %}
+
+                        <input
+                            type="hidden"
+                            name="action"
+                            value="toggle_manufacturer"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="manufacturer_id"
+                            value="{{ manufacturer.id }}"
+                        >
+
+
+                        {% if manufacturer.is_active %}
+
+                            <button
+                                type="submit"
+                                class="deactivate-button"
+                            >
+                                Deactivate
+                            </button>
+
+                        {% else %}
+
+                            <button
+                                type="submit"
+                                class="activate-button"
+                            >
+                                Activate
+                            </button>
+
+                        {% endif %}
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+
+            {% empty %}
+
+            <tr>
+
+                <td
+                    colspan="3"
+                    class="empty"
+                >
+                    No manufacturers found.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endif %}
+
+
+<style>
+
+    .page-header {
+        margin-top: 28px;
+        margin-left: 28px;
+        margin-right: 28px;
+        margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 26px;
+    }
+
+    .page-header p {
+        margin-top: 6px;
+        color: #777;
+        font-size: 14px;
+    }
+
+
+    .management-actions {
+        display: flex;
+        gap: 10px;
+        margin: 0 28px 24px 28px;
+    }
+
+
+    .tab-button {
+        padding: 10px 18px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        color: #333;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+
+    .tab-button:hover {
+        background: #f5f5f5;
+    }
+
+
+    .tab-button.active {
+        background: #222;
+        color: white;
+        border-color: #222;
+    }
+
+
+    .status {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+
+    .status.active {
+        background: #f1f1f1;
+        color: #222;
+    }
+
+
+    .status.inactive {
+        background: #eee;
+        color: #777;
+    }
+
+
+    .actions {
+        white-space: nowrap;
+    }
+
+
+    .edit-button,
+    .cancel-button {
+        display: inline-block;
+        padding: 7px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: white;
+        color: #333;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+
+    .edit-button:hover,
+    .cancel-button:hover {
+        background: #f5f5f5;
+    }
+
+
+    .activate-button,
+    .deactivate-button {
+        padding: 7px 12px;
+        font-size: 12px;
+    }
+
+
+    .activate-button {
+        background: #222;
+        color: white;
+        border-color: #222;
+    }
+
+
+    .deactivate-button {
+        color: #555;
+    }
+
+
+    .filter-card,
+    .form-card {
+        margin: 0 28px 28px 28px;
+        padding: 20px;
+        background: white;
+        border: 1px solid #e5e5e5;
+        border-radius: 10px;
+    }
+
+
+    .filter-card form {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+
+    .filter-card input,
+    .filter-card select {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 7px;
+        font-size: 14px;
+    }
+
+
+    .filter-card input {
+        min-width: 240px;
+    }
+
+
+    button {
+        padding: 10px 18px;
+        border: 1px solid #ddd;
+        border-radius: 7px;
+        background: white;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+
+    .form-card h2,
+    .table-card h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 19px;
+    }
+
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+
+    .form-group label {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+
+    .form-group input,
+    .form-group select,
+    .manufacturer-form input {
+        padding: 11px 12px;
+        border: 1px solid #ddd;
+        border-radius: 7px;
+        font-size: 14px;
+    }
+
+
+    .field-help {
+        font-size: 11px;
+        color: #888;
+        margin-top: -2px;
+    }
+
+
+    .form-actions {
+        margin-top: 24px;
+    }
+
+
+    .primary-button {
+        background: #222;
+        color: white;
+        border-color: #222;
+    }
+
+
+    .primary-button:hover {
+        background: #444;
+    }
+
+
+    .manufacturer-form {
+        display: flex;
+        gap: 12px;
+        max-width: 650px;
+    }
+
+
+    .manufacturer-form input {
+        flex: 1;
+    }
+
+
+    .table-card {
+        margin: 0 28px 30px 28px;
+        padding: 20px;
+        background: white;
+        border: 1px solid #e5e5e5;
+        border-radius: 10px;
+        overflow-x: auto;
+    }
+
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+
+    th,
+    td {
+        padding: 13px 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+    }
+
+
+    th {
+        font-weight: 600;
+        color: #555;
+    }
+
+
+    .empty {
+        text-align: center;
+        padding: 30px;
+        color: #888;
+    }
+
+
+    @media (max-width: 700px) {
+
+        .page-header,
+        .management-actions,
+        .filter-card,
+        .form-card,
+        .table-card {
+            margin-left: 16px;
+            margin-right: 16px;
+        }
+
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .manufacturer-form {
+            flex-direction: column;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

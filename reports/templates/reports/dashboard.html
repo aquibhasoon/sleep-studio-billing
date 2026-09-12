@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block title %}
+SLEEP STUDIO - Dashboard
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .container {
+        max-width: 1250px;
+        margin: 0 auto;
+        padding: 35px;
+    }
+
+    .page-title {
+        margin-bottom: 25px;
+    }
+
+    .page-title h2 {
+        margin: 0;
+        font-size: 28px;
+    }
+
+    .page-title p {
+        margin-top: 6px;
+        color: #777;
+    }
+
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 22px;
+    }
+
+    .card-title {
+        color: #777;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .card-value {
+        font-size: 25px;
+        font-weight: bold;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+    }
+
+    /* ================= QUICK ACTIONS ================= */
+
+.quick-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #222;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.action-button:hover {
+    background: #f5f5f5;
+    transform: translateY(-1px);
+}
+
+.action-button.primary {
+    background: #222;
+    color: white;
+    border-color: #222;
+}
+
+.action-button.primary:hover {
+    background: #444;
+}
+
+    .panel {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 22px;
+    }
+
+    .panel h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        text-align: left;
+        font-size: 12px;
+        color: #777;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    td {
+        padding: 13px 10px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+    }
+
+    .stock-warning {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .stock-warning:last-child {
+        border-bottom: none;
+    }
+
+    .stock-number {
+        font-weight: bold;
+    }
+
+    .actions {
+        margin-top: 25px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        text-decoration: none;
+        background: #222;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 7px;
+        font-size: 14px;
+    }
+
+    .action-btn.secondary {
+        background: white;
+        color: #222;
+        border: 1px solid #ddd;
+    }
+
+    .empty {
+        color: #888;
+        font-size: 14px;
+        padding: 10px 0;
+    }
+
+    @media (max-width: 1000px) {
+
+        .cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+    @media (max-width: 600px) {
+
+        .container {
+            padding: 20px;
+        }
+
+        .cards {
+            grid-template-columns: 1fr;
+        }
+
+    }
+</style>
+
+<body>
+
+    <main class="container">
+
+        <div class="page-title">
+            <h2>Dashboard</h2>
+            <p>Overview of your shop</p>
+        </div>
+
+
+        <!-- SUMMARY CARDS -->
+
+        <div class="cards">
+
+            <div class="card">
+                <div class="card-title">Today's Sales</div>
+                <div class="card-value">
+                    ₹{{ today_sales|floatformat:2 }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Today's Bills</div>
+                <div class="card-value">
+                    {{ today_bills }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Outstanding Payments</div>
+                <div class="card-value">
+                    ₹{{ outstanding|floatformat:2 }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Total Products</div>
+                <div class="card-value">
+                    {{ total_products }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Low Stock</div>
+                <div class="card-value">
+                    {{ low_stock_count }}
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- MAIN CONTENT -->
+
+        <div class="dashboard-grid">
+
+
+            <!-- RECENT INVOICES -->
+
+            <div class="panel">
+
+                <h3>Recent Invoices</h3>
+
+                {% if recent_invoices %}
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for invoice in recent_invoices %}
+
+                        <tr>
+
+                            <td>
+                                {{ invoice.invoice_number }}
+                            </td>
+
+                            <td>
+                                {% if invoice.customer %}
+                                {{ invoice.customer.name }}
+                                {% else %}
+                                Walk-in Customer
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                ₹{{ invoice.grand_total|floatformat:2 }}
+                            </td>
+
+                            <td>
+                                {{ invoice.payment_status }}
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+                {% else %}
+
+                <div class="empty">
+                    No invoices yet.
+                </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- LOW STOCK -->
+
+            <div class="panel">
+
+                <h3>Low Stock</h3>
+
+                {% if low_stock_products %}
+
+                {% for product in low_stock_products %}
+
+                <div class="stock-warning">
+
+                    <span>
+                        {{ product.name }}
+                    </span>
+
+                    <span class="stock-number">
+                        {{ product.stock_quantity }}
+                    </span>
+
+                </div>
+
+                {% endfor %}
+
+                {% else %}
+
+                <div class="empty">
+                    No low-stock products.
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <div class="quick-actions">
+            <a href="{% url 'create_sale' %}" class="action-button primary">
+                + Create New Bill
+            </a>
+
+            {% if recent_invoices %}
+            <a href="{% url 'invoice_detail' recent_invoices.0.id %}" class="action-button">
+                View Last Invoice
+            </a>
+            {% endif %}
+        </div>
+
+    </main>
+
+    {% endblock %}

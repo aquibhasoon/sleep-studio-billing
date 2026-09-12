@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+
+{% block title %}
+Stock History - SLEEP STUDIO
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .history-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 35px;
+    }
+
+    /* ================= TOP BAR ================= */
+
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .top-bar h2 {
+        margin: 0;
+        font-size: 28px;
+    }
+
+    /* ================= FILTERS ================= */
+
+    .filters {
+        background: white;
+        padding: 18px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .filters form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .filters input,
+    .filters select {
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        background: white;
+        outline: none;
+    }
+
+    .filters input {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filters input:focus,
+    .filters select:focus {
+        border-color: #999;
+    }
+
+    .filters button {
+        height: 42px;
+        padding: 0 18px;
+        border: none;
+        border-radius: 8px;
+        background: #222;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .filters button:hover {
+        background: #444;
+    }
+
+    .filters a {
+        display: flex;
+        align-items: center;
+        height: 42px;
+        padding: 0 15px;
+        text-decoration: none;
+        color: #555;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .filters a:hover {
+        background: #f5f5f5;
+    }
+
+    /* ================= TABLE CARD ================= */
+
+    .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 750px;
+    }
+
+    th {
+        background: #fafafa;
+        text-align: left;
+        padding: 15px;
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    td {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+        color: #444;
+    }
+
+    tbody tr:hover {
+        background: #fafafa;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* ================= MOVEMENT BADGES ================= */
+
+    .movement-in {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #dcfce7;
+        color: #166534;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .movement-out {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #fee2e2;
+        color: #991b1b;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .movement-adjustment {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #fef3c7;
+        color: #92400e;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .quantity {
+        font-weight: bold;
+    }
+
+    /* ================= EMPTY ================= */
+
+    .empty {
+        text-align: center;
+        padding: 50px !important;
+        color: #6b7280;
+    }
+
+    .back-inventory-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border: 1px solid #d8d8d8;
+    border-radius: 7px;
+    background: #fff;
+    color: #333;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: 0.15s ease;
+}
+
+.back-inventory-btn:hover {
+    background: #f5f5f5;
+    border-color: #c8c8c8;
+}
+
+    /* ================= RESPONSIVE ================= */
+
+    @media (max-width: 768px) {
+
+        .history-container {
+            padding: 20px;
+        }
+
+        .top-bar {
+            align-items: flex-start;
+        }
+
+        .top-bar h2 {
+            font-size: 24px;
+        }
+
+        .filters form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filters input,
+        .filters select,
+        .filters button,
+        .filters a {
+            width: 100%;
+        }
+
+        .card {
+            overflow-x: auto;
+        }
+
+    }
+
+</style>
+
+
+<div class="history-container">
+
+    <div class="top-bar">
+
+        <h2>
+            Stock History
+        </h2>
+
+        <a href="{% url 'inventory' %}" class="back-inventory-btn">
+    ← back to Inventory
+</a>
+
+    </div>
+
+
+    <div class="filters">
+
+        <form method="GET">
+
+            <input
+                type="text"
+                name="search"
+                placeholder="Search product..."
+                value="{{ search }}"
+            >
+
+
+            <select name="movement_type">
+
+                <option value="">
+                    All Movements
+                </option>
+
+                <option
+                    value="IN"
+                    {% if selected_movement_type == "IN" %}
+                        selected
+                    {% endif %}
+                >
+                    Stock In
+                </option>
+
+                <option
+                    value="OUT"
+                    {% if selected_movement_type == "OUT" %}
+                        selected
+                    {% endif %}
+                >
+                    Stock Out
+                </option>
+
+                <option
+                    value="ADJUSTMENT"
+                    {% if selected_movement_type == "ADJUSTMENT" %}
+                        selected
+                    {% endif %}
+                >
+                    Adjustment
+                </option>
+
+            </select>
+
+
+            <button type="submit">
+                Filter
+            </button>
+
+
+            <a href="{% url 'stock_history' %}">
+                Clear
+            </a>
+
+        </form>
+
+    </div>
+
+
+    <div class="card">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Product</th>
+                    <th>Movement</th>
+                    <th>Quantity</th>
+                    <th>Note</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for movement in movements %}
+
+                <tr>
+
+                    <td>
+                        {{ movement.created_at|date:"d M Y, h:i A" }}
+                    </td>
+
+
+                    <td>
+                        <strong>
+                            {{ movement.product.name }}
+                        </strong>
+                    </td>
+
+
+                    <td>
+
+                        {% if movement.movement_type == "IN" %}
+
+                        <span class="movement-in">
+                            Stock In
+                        </span>
+
+                        {% elif movement.movement_type == "OUT" %}
+
+                        <span class="movement-out">
+                            Stock Out
+                        </span>
+
+                        {% else %}
+
+                        <span class="movement-adjustment">
+                            Adjustment
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td class="quantity">
+                        {{ movement.quantity }}
+                    </td>
+
+
+                    <td>
+                        {{ movement.note|default:"—" }}
+                    </td>
+
+                </tr>
+
+
+                {% empty %}
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        class="empty"
+                    >
+                        No stock movements yet.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

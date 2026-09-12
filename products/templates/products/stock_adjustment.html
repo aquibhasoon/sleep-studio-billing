@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+.adjustment-page {
+    max-width: 620px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.adjustment-card {
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 28px;
+}
+
+.adjustment-header {
+    margin-bottom: 24px;
+}
+
+.adjustment-header h1 {
+    margin: 0 0 6px;
+    font-size: 24px;
+}
+
+.adjustment-header p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.product-info {
+    background: #f7f7f7;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.product-info strong {
+    display: block;
+    font-size: 17px;
+    margin-bottom: 5px;
+}
+
+.current-stock {
+    color: #666;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #d5d5d5;
+    border-radius: 7px;
+    font-size: 15px;
+}
+
+.form-help {
+    margin-top: 7px;
+    color: #777;
+    font-size: 13px;
+}
+
+.error-message {
+    background: #fff1f1;
+    border: 1px solid #f0caca;
+    color: #a33;
+    padding: 11px 13px;
+    border-radius: 7px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border-radius: 7px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #222;
+    color: white;
+    border-color: #222;
+}
+
+.btn-secondary {
+    background: white;
+    color: #222;
+}
+
+@media (max-width: 600px) {
+
+    .adjustment-page {
+        margin: 25px auto;
+        padding: 0 16px;
+    }
+
+    .adjustment-card {
+        padding: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+</style>
+
+
+<div class="adjustment-page">
+
+    <div class="adjustment-card">
+
+        <div class="adjustment-header">
+            <h1>Stock Adjustment</h1>
+            <p>Correct the physical stock quantity for this product.</p>
+        </div>
+
+
+        <div class="product-info">
+
+            <strong>
+                {{ product.name }}
+            </strong>
+
+            <div class="current-stock">
+                Current Stock:
+                <strong style="display: inline;">
+                    {{ product.stock_quantity }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        {% if error %}
+
+            <div class="error-message">
+                {{ error }}
+            </div>
+
+        {% endif %}
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+
+            <div class="form-group">
+
+                <label for="new_quantity">
+                    New Stock Quantity
+                </label>
+
+                <input
+                    type="number"
+                    id="new_quantity"
+                    name="new_quantity"
+                    min="0"
+                    value="{{ product.stock_quantity }}"
+                    required
+                >
+
+                <div class="form-help">
+                    Enter the actual physical quantity currently available.
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'inventory' %}"
+                    class="btn btn-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Save Adjustment
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

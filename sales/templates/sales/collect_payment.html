@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <div class="page-header">
+        <div>
+            <h1>Collect Payment</h1>
+            <p>{{ invoice.invoice_number }}</p>
+        </div>
+
+        <a
+            href="{% url 'invoice_detail' invoice.id %}"
+            class="back-btn"
+        >
+            ← Back to Bill
+        </a>
+    </div>
+
+
+    <div class="payment-card">
+
+        <div class="bill-summary">
+
+            <div class="summary-item">
+                <span>Invoice Total</span>
+                <strong>₹{{ invoice.grand_total }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <span>Already Paid</span>
+                <strong>₹{{ invoice.amount_paid }}</strong>
+            </div>
+
+            <div class="summary-item outstanding">
+                <span>Outstanding</span>
+                <strong>₹{{ invoice.balance }}</strong>
+            </div>
+
+        </div>
+
+
+        {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+        {% endif %}
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label for="amount">
+                    Payment Amount
+                </label>
+
+                <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    step="0.01"
+                    min="0.01"
+                    max="{{ invoice.balance }}"
+                    placeholder="Enter amount"
+                    required
+                >
+
+                <small>
+                    Maximum: ₹{{ invoice.balance }}
+                </small>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="method">
+                    Payment Method
+                </label>
+
+                <select
+                    id="method"
+                    name="method"
+                    required
+                >
+
+                    <option value="">
+                        Select payment method
+                    </option>
+
+                    <option value="CASH">
+                        Cash
+                    </option>
+
+                    <option value="UPI">
+                        UPI
+                    </option>
+
+                    <option value="CARD">
+                        Card
+                    </option>
+
+                    <option value="BANK">
+                        Bank Transfer
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="reference">
+                    Reference
+                    <span>(Optional)</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="reference"
+                    name="reference"
+                    placeholder="UPI / transaction reference"
+                >
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'invoice_detail' invoice.id %}"
+                    class="cancel-btn"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="save-btn"
+                >
+                    Record Payment
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.page-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.page-header p {
+    margin: 6px 0 0;
+    color: #777;
+}
+
+.back-btn {
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #f3f3f3;
+    color: #333;
+}
+
+.payment-card {
+    background: white;
+    border-radius: 14px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.bill-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.summary-item {
+    padding: 18px;
+    background: #f7f7f7;
+    border-radius: 10px;
+}
+
+.summary-item span {
+    display: block;
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 7px;
+}
+
+.summary-item strong {
+    font-size: 19px;
+}
+
+.summary-item.outstanding {
+    background: #f3f3f3;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group label span {
+    color: #888;
+    font-weight: normal;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #555;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 6px;
+    color: #888;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.cancel-btn,
+.save-btn {
+    padding: 11px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: #f1f1f1;
+    color: #333;
+}
+
+.save-btn {
+    border: none;
+    background: #222;
+    color: white;
+}
+
+.error-message {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background: #ffecec;
+    color: #b00020;
+}
+
+
+@media (max-width: 650px) {
+
+    .page-header {
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .bill-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-card {
+        padding: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .cancel-btn,
+    .save-btn {
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+}
+
+</style>
+
+{% endblock %}

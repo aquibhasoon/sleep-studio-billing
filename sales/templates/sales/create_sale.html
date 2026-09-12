@@ -1,0 +1,2582 @@
+{% extends "base.html" %}
+
+{% block title %}
+New Bill - SLEEP STUDIO
+{% endblock %}
+
+{% block content %}
+
+<style>
+  /* =========================================================
+     PAGE
+     ========================================================= */
+
+  .billing-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px;
+  }
+
+  .page-title {
+    margin-bottom: 24px;
+  }
+
+  .page-title h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .page-title p {
+    margin: 6px 0 0;
+    color: #777;
+    font-size: 14px;
+  }
+
+  /* =========================================================
+     MESSAGES
+     ========================================================= */
+
+  .message {
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 12px 16px;
+    background: #fff3cd;
+    border: 1px solid #ffe69c;
+    border-radius: 7px;
+    color: #664d03;
+  }
+
+  /* =========================================================
+     CARDS
+     ========================================================= */
+
+  .card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    margin: 0 0 18px;
+    font-size: 17px;
+    font-weight: 650;
+  }
+
+  /* =========================================================
+     FORMS
+     ========================================================= */
+
+  label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 7px;
+    font-weight: 600;
+  }
+
+  select,
+  input {
+    width: 100%;
+    height: 42px;
+    box-sizing: border-box;
+    border: 1px solid #d9dce1;
+    border-radius: 7px;
+    padding: 0 12px;
+    font-size: 14px;
+    background: white;
+  }
+
+  select:focus,
+  input:focus {
+    outline: none;
+    border-color: #777;
+  }
+
+  input[type="number"] {
+    appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  /* =========================================================
+     CUSTOMER
+     ========================================================= */
+
+  .customer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .customer-header .card-title {
+    margin: 0;
+  }
+
+  .new-customer-btn {
+    border: 1px solid #222;
+    background: white;
+    color: #222;
+    padding: 9px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .new-customer-btn:hover {
+    background: #222;
+    color: white;
+  }
+
+  .new-customer-form {
+    margin-top: 18px;
+    padding: 18px;
+    background: #f8f8f8;
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+  }
+
+  .new-customer-form h4 {
+    margin: 0 0 16px;
+    font-size: 15px;
+  }
+
+  .customer-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .customer-address {
+    grid-column: 1 / -1;
+  }
+
+  .customer-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .cancel-customer-btn,
+  .save-customer-btn {
+    padding: 9px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .cancel-customer-btn {
+    border: 1px solid #ddd;
+    background: white;
+    color: #555;
+  }
+
+  .save-customer-btn {
+    border: none;
+    background: #222;
+    color: white;
+  }
+
+  .save-customer-btn:hover {
+    background: #444;
+  }
+
+  /* =========================================================
+     PRODUCT SELECTION
+     ========================================================= */
+
+  .product-search {
+    margin-bottom: 15px;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 15px;
+    align-items: end;
+  }
+
+  .price-display {
+    background: #f7f7f7;
+  }
+
+  .stock-display {
+    margin-top: 7px;
+    font-size: 12px;
+    color: #777;
+  }
+
+  .stock-display.low {
+    color: #b45309;
+    font-weight: 600;
+  }
+
+  .stock-display.out {
+    color: #c0392b;
+    font-weight: 600;
+  }
+
+  .add-btn {
+    height: 42px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 7px;
+    background: #222;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .add-btn:hover {
+    background: #444;
+  }
+
+  .add-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+  }
+
+  /* =========================================================
+     BILL TABLE
+     ========================================================= */
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    text-align: left;
+    padding: 13px 12px;
+    font-size: 12px;
+    color: #777;
+    background: #f8f8f8;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .product-name {
+    font-weight: 600;
+  }
+
+  .product-meta {
+    margin-top: 4px;
+    color: #888;
+    font-size: 12px;
+  }
+
+  .quantity-input {
+    width: 75px;
+    height: 36px;
+    text-align: center;
+    padding: 0 6px;
+  }
+
+  .item-discount-input {
+    width: 95px;
+    height: 36px;
+    padding: 0 8px;
+  }
+
+  .item-total {
+    font-weight: 650;
+    white-space: nowrap;
+  }
+
+  .remove-btn {
+    border: 1px solid #ddd;
+    background: white;
+    color: #c0392b;
+    padding: 7px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .remove-btn:hover {
+    background: #fff5f5;
+  }
+
+  .empty-row {
+    text-align: center;
+    color: #888;
+    padding: 30px !important;
+  }
+
+  /* =========================================================
+     BILL BOTTOM
+     ========================================================= */
+
+  .billing-section {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 25px;
+    align-items: start;
+  }
+
+  .payment-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .payment-fields .full {
+    grid-column: 1 / -1;
+  }
+
+  .payment-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .paid-btn {
+    border: 1px solid #222;
+    background: white;
+    color: #222;
+    padding: 8px 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .paid-btn:hover {
+    background: #222;
+    color: white;
+  }
+
+  /* =========================================================
+     SUMMARY
+     ========================================================= */
+
+  .summary {
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+    position: sticky;
+    top: 20px;
+  }
+
+  .summary-title {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 650;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 9px 0;
+    font-size: 14px;
+  }
+
+  .summary-row.total {
+    border-top: 1px solid #ddd;
+    margin-top: 8px;
+    padding-top: 15px;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .summary-row.balance {
+    color: #b45309;
+    font-weight: 600;
+  }
+
+  .summary-row.repay {
+    color: #16803c;
+    font-weight: 600;
+  }
+
+  .status {
+    margin-top: 15px;
+    padding: 10px;
+    text-align: center;
+    border-radius: 7px;
+    background: #eee;
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  .status.paid {
+    background: #eaf7ef;
+    color: #16803c;
+  }
+
+  .status.partial {
+    background: #fff7e6;
+    color: #b45309;
+  }
+
+  .status.unpaid {
+    background: #f5f5f5;
+    color: #666;
+  }
+
+  /* =========================================================
+     CREATE BILL
+     ========================================================= */
+
+  .create-section {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .create-btn {
+    border: none;
+    background: #222;
+    color: white;
+    padding: 14px 30px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+  }
+
+  .create-btn:hover {
+    background: #444;
+  }
+
+  .create-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+  }
+
+  /* =========================================================
+     RESPONSIVE
+     ========================================================= */
+
+  @media (max-width: 900px) {
+
+    .product-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .billing-section {
+      grid-template-columns: 1fr;
+    }
+
+    .summary {
+      position: static;
+    }
+  }
+
+  @media (max-width: 650px) {
+
+    .billing-container {
+      padding: 18px;
+    }
+
+    .customer-header {
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .customer-form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .customer-address {
+      grid-column: auto;
+    }
+
+    .product-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .payment-fields {
+      grid-template-columns: 1fr;
+    }
+
+    .payment-fields .full {
+      grid-column: auto;
+    }
+
+    .create-section {
+      justify-content: stretch;
+    }
+
+    .create-btn {
+      width: 100%;
+    }
+
+    .page-title h2 {
+      font-size: 24px;
+    }
+  }
+</style>
+
+
+<!-- =========================================================
+     MESSAGES
+     ========================================================= -->
+
+{% if messages %}
+
+  {% for message in messages %}
+
+    <div class="message">
+      {{ message }}
+    </div>
+
+  {% endfor %}
+
+{% endif %}
+
+
+<!-- =========================================================
+     MAIN
+     ========================================================= -->
+
+<main class="billing-container">
+
+  <div class="page-title">
+
+    <h2>
+      Create New Bill
+    </h2>
+
+    <p>
+      Add products and complete the customer's payment.
+    </p>
+
+  </div>
+
+
+  <!-- =======================================================
+       BILLING FORM
+       ======================================================= -->
+
+  <form method="POST" id="billing-form">
+
+    {% csrf_token %}
+
+
+    <!-- =====================================================
+         CUSTOMER
+         ===================================================== -->
+
+    <div class="card">
+
+      <div class="customer-header">
+
+        <h3 class="card-title">
+          Customer
+        </h3>
+
+        <button
+          type="button"
+          class="new-customer-btn"
+          onclick="showCustomerForm()"
+        >
+          + New Customer
+        </button>
+
+      </div>
+
+
+      <select name="customer" id="customer">
+
+        <option value="">
+          Walk-in Customer
+        </option>
+
+        {% for customer in customers %}
+
+          <option value="{{ customer.id }}">
+            {{ customer.name }} - {{ customer.phone }}
+          </option>
+
+        {% endfor %}
+
+      </select>
+
+
+      <!-- NEW CUSTOMER FORM -->
+
+      <div
+        id="new-customer-form"
+        class="new-customer-form"
+        style="display: none;"
+      >
+
+        <h4>
+          Add New Customer
+        </h4>
+
+
+        <div class="customer-form-grid">
+
+          <div>
+
+            <label for="new-customer-name">
+              Name
+            </label>
+
+            <input
+              type="text"
+              id="new-customer-name"
+              placeholder="Customer name"
+            >
+
+          </div>
+
+
+          <div>
+
+            <label for="new-customer-phone">
+              Phone
+            </label>
+
+            <input
+              type="text"
+              id="new-customer-phone"
+              placeholder="Phone number"
+            >
+
+          </div>
+
+
+          <div class="customer-address">
+
+            <label for="new-customer-address">
+              Address
+            </label>
+
+            <input
+              type="text"
+              id="new-customer-address"
+              placeholder="Optional"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="customer-form-actions">
+
+          <button
+            type="button"
+            class="cancel-customer-btn"
+            onclick="hideCustomerForm()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="save-customer-btn"
+            onclick="saveNewCustomer()"
+          >
+            Save Customer
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PRODUCT
+         ===================================================== -->
+
+    <div class="card">
+
+      <h3 class="card-title">
+        Add Product
+      </h3>
+
+
+      <!-- PRODUCT SEARCH -->
+
+      <div class="product-search">
+
+        <label for="product-search">
+          Search Product
+        </label>
+
+        <input
+          type="text"
+          id="product-search"
+          placeholder="Type product name to search..."
+          autocomplete="off"
+        >
+
+      </div>
+
+
+      <div class="product-grid">
+
+        <!-- PRODUCT -->
+
+        <div>
+
+          <label for="product">
+            Product
+          </label>
+
+          <select id="product">
+
+            <option value="">
+              Select Product
+            </option>
+
+            {% for product in products %}
+
+              <option
+                value="{{ product.id }}"
+                data-price="{{ product.selling_price }}"
+                data-stock="{{ product.stock_quantity }}"
+                data-name="{{ product.name|lower }}"
+              >
+                {{ product.name }} - ₹{{ product.selling_price }}
+              </option>
+
+            {% endfor %}
+
+          </select>
+
+          <div id="stock-display" class="stock-display">
+            Select a product to see available stock.
+          </div>
+
+        </div>
+
+
+        <!-- PRICE -->
+
+        <div>
+
+          <label for="price">
+            Price
+          </label>
+
+          <input
+            type="number"
+            id="price"
+            class="price-display"
+            step="0.01"
+            readonly
+          >
+
+        </div>
+
+
+        <!-- QUANTITY -->
+
+        <div>
+
+          <label for="quantity">
+            Quantity
+          </label>
+
+          <input
+            type="number"
+            id="quantity"
+            min="1"
+            value="1"
+          >
+
+        </div>
+
+
+        <!-- ADD -->
+
+        <div>
+
+          <button
+            type="button"
+            class="add-btn"
+            id="add-product-btn"
+            onclick="addProduct()"
+          >
+            + Add Product
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BILL ITEMS
+         ===================================================== -->
+
+    <div class="card">
+
+      <h3 class="card-title">
+        Bill Items
+      </h3>
+
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Product
+              </th>
+
+              <th>
+                Quantity
+              </th>
+
+              <th>
+                Price
+              </th>
+
+              <th>
+                Discount
+              </th>
+
+              <th>
+                Total
+              </th>
+
+              <th>
+                Action
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="bill-items">
+
+            <tr id="empty-row">
+
+              <td
+                colspan="6"
+                class="empty-row"
+              >
+                No products added yet.
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PAYMENT + SUMMARY
+         ===================================================== -->
+
+    <div class="billing-section">
+
+
+      <!-- ===================================================
+           PAYMENT
+           =================================================== -->
+
+      <div class="card">
+
+        <h3 class="card-title">
+          Payment
+        </h3>
+
+
+        <div class="payment-fields">
+
+
+          <!-- DISCOUNT -->
+
+          <div>
+
+            <label for="discount">
+              Invoice Discount
+            </label>
+
+            <input
+              type="number"
+              name="discount"
+              id="discount"
+              min="0"
+              value="0"
+              step="0.01"
+            >
+
+          </div>
+
+
+          <!-- TAX -->
+
+          <div>
+
+            <label for="tax">
+              Tax (%)
+            </label>
+
+            <input
+              type="number"
+              name="tax"
+              id="tax"
+              min="0"
+              value="0"
+              step="0.01"
+            >
+
+          </div>
+
+
+          <!-- AMOUNT -->
+
+          <div>
+
+            <label for="amount-paid">
+              Amount Received
+            </label>
+
+            <input
+              type="number"
+              name="amount_paid"
+              id="amount-paid"
+              min="0"
+              value="0"
+              step="0.01"
+            >
+
+          </div>
+
+
+          <!-- PAYMENT METHOD -->
+
+          <div>
+
+            <label for="payment-method">
+              Payment Method
+            </label>
+
+            <select
+              name="payment_method"
+              id="payment-method"
+            >
+
+              <option value="CASH">
+                Cash
+              </option>
+
+              <option value="UPI">
+                UPI
+              </option>
+
+              <option value="CARD">
+                Card
+              </option>
+
+              <option value="BANK">
+                Bank Transfer
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- REFERENCE -->
+
+          <div class="full">
+
+            <label for="payment-reference">
+              Payment Reference
+            </label>
+
+            <input
+              type="text"
+              name="payment_reference"
+              id="payment-reference"
+              placeholder="Optional"
+            >
+
+          </div>
+
+
+        </div>
+
+
+        <div class="payment-actions">
+
+          <button
+            type="button"
+            class="paid-btn"
+            onclick="fillFullPayment()"
+          >
+            Full Payment
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===================================================
+           SUMMARY
+           =================================================== -->
+
+      <div class="summary">
+
+        <h3 class="summary-title">
+          Bill Summary
+        </h3>
+
+
+        <div class="summary-row">
+
+          <span>
+            Subtotal
+          </span>
+
+          <strong>
+            ₹<span id="subtotal">0.00</span>
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            Discount
+          </span>
+
+          <strong>
+            ₹<span id="discount-display">0.00</span>
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            Tax
+          </span>
+
+          <strong>
+            ₹<span id="tax-amount">0.00</span>
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row total">
+
+          <span>
+            Grand Total
+          </span>
+
+          <span>
+            ₹<span id="grand-total">0.00</span>
+          </span>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            Amount Received
+          </span>
+
+          <strong>
+            ₹<span id="amount-display">0.00</span>
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row balance">
+
+          <span>
+            Balance
+          </span>
+
+          <strong>
+            ₹<span id="balance">0.00</span>
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row repay">
+
+          <span>
+            Change to Return
+          </span>
+
+          <strong>
+            ₹<span id="repay-amount">0.00</span>
+          </strong>
+
+        </div>
+
+
+        <div
+          class="status unpaid"
+          id="status-box"
+        >
+
+          Payment Status:
+
+          <span id="payment-status">
+            UNPAID
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CREATE BILL
+         ===================================================== -->
+
+    <div class="create-section">
+
+      <button
+        type="submit"
+        class="create-btn"
+        id="create-bill-btn"
+      >
+        CREATE BILL
+      </button>
+
+    </div>
+
+
+  </form>
+
+</main>
+
+
+<script>
+  /* =========================================================
+     PRODUCT ELEMENTS
+     ========================================================= */
+
+  const productSelect =
+    document.getElementById("product");
+
+  const productSearch =
+    document.getElementById("product-search");
+
+  const priceInput =
+    document.getElementById("price");
+
+  const quantityInput =
+    document.getElementById("quantity");
+
+  const stockDisplay =
+    document.getElementById("stock-display");
+
+  const billItems =
+    document.getElementById("bill-items");
+
+  const addProductButton =
+    document.getElementById("add-product-btn");
+
+  const createBillButton =
+    document.getElementById("create-bill-btn");
+
+
+  /* =========================================================
+     PRODUCT SEARCH
+     ========================================================= */
+
+  productSearch.addEventListener(
+    "input",
+    function () {
+
+      const search =
+        this.value.trim().toLowerCase();
+
+      const options =
+        productSelect.querySelectorAll(
+          "option"
+        );
+
+      options.forEach(function (option) {
+
+        if (!option.value) {
+          option.hidden = false;
+          return;
+        }
+
+        const name =
+          option.dataset.name || "";
+
+        option.hidden =
+          search &&
+          !name.includes(search);
+
+      });
+
+      const selected =
+        productSelect.options[
+          productSelect.selectedIndex
+        ];
+
+      if (
+        selected &&
+        selected.hidden
+      ) {
+
+        productSelect.value = "";
+
+        priceInput.value = "";
+
+        stockDisplay.textContent =
+          "Select a product to see available stock.";
+
+        stockDisplay.className =
+          "stock-display";
+      }
+
+    }
+  );
+
+
+  /* =========================================================
+     PRODUCT SELECTION
+     ========================================================= */
+
+  productSelect.addEventListener(
+    "change",
+    function () {
+
+      const selected =
+        this.options[
+          this.selectedIndex
+        ];
+
+      if (!this.value) {
+
+        priceInput.value = "";
+
+        stockDisplay.textContent =
+          "Select a product to see available stock.";
+
+        stockDisplay.className =
+          "stock-display";
+
+        addProductButton.disabled = true;
+
+        return;
+      }
+
+
+      const price =
+        selected.dataset.price || "";
+
+      const stock =
+        parseInt(
+          selected.dataset.stock || "0"
+        );
+
+
+      priceInput.value =
+        price;
+
+
+      if (stock <= 0) {
+
+        stockDisplay.textContent =
+          "Out of stock";
+
+        stockDisplay.className =
+          "stock-display out";
+
+        addProductButton.disabled = true;
+
+      }
+      else if (stock <= 5) {
+
+        stockDisplay.textContent =
+          "Available stock: " + stock;
+
+        stockDisplay.className =
+          "stock-display low";
+
+        addProductButton.disabled = false;
+
+      }
+      else {
+
+        stockDisplay.textContent =
+          "Available stock: " + stock;
+
+        stockDisplay.className =
+          "stock-display";
+
+        addProductButton.disabled = false;
+      }
+
+    }
+  );
+
+
+  /* =========================================================
+     ADD PRODUCT
+     ========================================================= */
+
+  function addProduct() {
+
+    if (!productSelect.value) {
+
+      alert(
+        "Please select a product."
+      );
+
+      return;
+    }
+
+
+    const selected =
+      productSelect.options[
+        productSelect.selectedIndex
+      ];
+
+
+    const productId =
+      productSelect.value;
+
+
+    const productName =
+      selected.textContent.trim();
+
+
+    const price =
+      parseFloat(
+        selected.dataset.price
+      );
+
+
+    const stock =
+      parseInt(
+        selected.dataset.stock
+      );
+
+
+    const quantity =
+      parseInt(
+        quantityInput.value
+      );
+
+
+    if (
+      !quantity ||
+      quantity <= 0
+    ) {
+
+      alert(
+        "Please enter a valid quantity."
+      );
+
+      return;
+    }
+
+
+    if (
+      !price ||
+      price < 0
+    ) {
+
+      alert(
+        "Invalid product price."
+      );
+
+      return;
+    }
+
+
+    if (stock <= 0) {
+
+      alert(
+        "This product is out of stock."
+      );
+
+      return;
+    }
+
+
+    /*
+     * Check whether this product already exists
+     * in the bill.
+     */
+
+    const existingRow =
+      document.querySelector(
+        '#bill-items tr[data-product-id="' +
+        productId +
+        '"]'
+      );
+
+
+    if (existingRow) {
+
+      const existingQuantityInput =
+        existingRow.querySelector(
+          ".quantity-input"
+        );
+
+
+      const existingQuantity =
+        parseInt(
+          existingQuantityInput.value
+        );
+
+
+      const newQuantity =
+        existingQuantity + quantity;
+
+
+      if (newQuantity > stock) {
+
+        alert(
+          "Not enough stock. Available stock: " +
+          stock +
+          ". Already added: " +
+          existingQuantity
+        );
+
+        return;
+      }
+
+
+      existingQuantityInput.value =
+        newQuantity;
+
+
+      updateRowTotal(
+        existingRow
+      );
+
+      updateGrandTotal();
+
+      resetProductSelector();
+
+      return;
+    }
+
+
+    const emptyRow =
+      document.getElementById(
+        "empty-row"
+      );
+
+
+    if (emptyRow) {
+      emptyRow.remove();
+    }
+
+
+    const row =
+      document.createElement("tr");
+
+
+    row.dataset.productId =
+      productId;
+
+
+    row.dataset.price =
+      price;
+
+
+    row.dataset.stock =
+      stock;
+
+
+    row.innerHTML = `
+
+      <td>
+
+        <div class="product-name">
+          ${escapeHtml(productName)}
+        </div>
+
+        <div class="product-meta">
+          Stock: ${stock}
+        </div>
+
+        <input
+          type="hidden"
+          name="product_id"
+          value="${productId}"
+        >
+
+        <input
+          type="hidden"
+          name="price"
+          value="${price}"
+        >
+
+      </td>
+
+
+      <td>
+
+        <input
+          type="number"
+          class="quantity-input"
+          name="quantity"
+          value="${quantity}"
+          min="1"
+          max="${stock}"
+        >
+
+      </td>
+
+
+      <td>
+
+        ₹${price.toFixed(2)}
+
+      </td>
+
+
+      <td>
+
+        <input
+          type="number"
+          class="item-discount-input"
+          name="item_discount"
+          value="0"
+          min="0"
+          step="0.01"
+        >
+
+      </td>
+
+
+      <td>
+
+        <span class="item-total">
+          ₹${(
+            quantity * price
+          ).toFixed(2)}
+        </span>
+
+      </td>
+
+
+      <td>
+
+        <button
+          type="button"
+          class="remove-btn"
+        >
+          Remove
+        </button>
+
+      </td>
+
+    `;
+
+
+    billItems.appendChild(
+      row
+    );
+
+
+    const rowQuantityInput =
+      row.querySelector(
+        ".quantity-input"
+      );
+
+
+    const discountInput =
+      row.querySelector(
+        ".item-discount-input"
+      );
+
+
+    rowQuantityInput.addEventListener(
+      "input",
+      function () {
+
+        validateRowQuantity(
+          row
+        );
+
+        updateRowTotal(
+          row
+        );
+
+        updateGrandTotal();
+
+      }
+    );
+
+
+    discountInput.addEventListener(
+      "input",
+      function () {
+
+        updateRowTotal(
+          row
+        );
+
+        updateGrandTotal();
+
+      }
+    );
+
+
+    row.querySelector(
+      ".remove-btn"
+    ).addEventListener(
+      "click",
+      function () {
+
+        row.remove();
+
+        if (
+          billItems.querySelectorAll(
+            "tr"
+          ).length === 0
+        ) {
+
+          showEmptyRow();
+
+        }
+
+        updateGrandTotal();
+
+      }
+    );
+
+
+    updateGrandTotal();
+
+    resetProductSelector();
+
+  }
+
+
+  /* =========================================================
+     VALIDATE ROW QUANTITY
+     ========================================================= */
+
+  function validateRowQuantity(row) {
+
+    const quantityInput =
+      row.querySelector(
+        ".quantity-input"
+      );
+
+
+    const stock =
+      parseInt(
+        row.dataset.stock
+      );
+
+
+    let quantity =
+      parseInt(
+        quantityInput.value
+      );
+
+
+    if (
+      isNaN(quantity) ||
+      quantity < 1
+    ) {
+
+      quantity = 1;
+
+    }
+
+
+    if (
+      quantity > stock
+    ) {
+
+      quantity = stock;
+
+      alert(
+        "Maximum available stock is " +
+        stock
+      );
+
+    }
+
+
+    quantityInput.value =
+      quantity;
+
+  }
+
+
+  /* =========================================================
+     UPDATE ROW TOTAL
+     ========================================================= */
+
+  function updateRowTotal(row) {
+
+    const price =
+      parseFloat(
+        row.dataset.price
+      ) || 0;
+
+
+    const quantityInput =
+      row.querySelector(
+        ".quantity-input"
+      );
+
+
+    const discountInput =
+      row.querySelector(
+        ".item-discount-input"
+      );
+
+
+    const totalElement =
+      row.querySelector(
+        ".item-total"
+      );
+
+
+    const quantity =
+      parseInt(
+        quantityInput.value
+      ) || 0;
+
+
+    const discount =
+      parseFloat(
+        discountInput.value
+      ) || 0;
+
+
+    let total =
+      (
+        price * quantity
+      ) - discount;
+
+
+    if (total < 0) {
+
+      total = 0;
+
+    }
+
+
+    totalElement.textContent =
+      "₹" + total.toFixed(2);
+
+  }
+
+
+  /* =========================================================
+     CALCULATE GRAND TOTAL
+     ========================================================= */
+
+  function updateGrandTotal() {
+
+    const rows =
+      document.querySelectorAll(
+        "#bill-items tr[data-product-id]"
+      );
+
+
+    let subtotal = 0;
+
+
+    rows.forEach(
+      function (row) {
+
+        const price =
+          parseFloat(
+            row.dataset.price
+          ) || 0;
+
+
+        const quantity =
+          parseInt(
+            row.querySelector(
+              ".quantity-input"
+            ).value
+          ) || 0;
+
+
+        const discount =
+          parseFloat(
+            row.querySelector(
+              ".item-discount-input"
+            ).value
+          ) || 0;
+
+
+        let itemTotal =
+          (
+            price * quantity
+          ) - discount;
+
+
+        if (itemTotal < 0) {
+
+          itemTotal = 0;
+
+        }
+
+
+        subtotal +=
+          itemTotal;
+
+      }
+    );
+
+
+    const discount =
+      parseFloat(
+        document.getElementById(
+          "discount"
+        ).value
+      ) || 0;
+
+
+    const taxPercentage =
+      parseFloat(
+        document.getElementById(
+          "tax"
+        ).value
+      ) || 0;
+
+
+    const taxableAmount =
+      Math.max(
+        subtotal - discount,
+        0
+      );
+
+
+    const taxAmount =
+      taxableAmount *
+      taxPercentage /
+      100;
+
+
+    const grandTotal =
+      taxableAmount +
+      taxAmount;
+
+
+    const amountPaid =
+      parseFloat(
+        document.getElementById(
+          "amount-paid"
+        ).value
+      ) || 0;
+
+
+    let balance = 0;
+
+    let repayAmount = 0;
+
+
+    if (
+      amountPaid >
+      grandTotal
+    ) {
+
+      repayAmount =
+        amountPaid -
+        grandTotal;
+
+    }
+    else {
+
+      balance =
+        grandTotal -
+        amountPaid;
+
+    }
+
+
+    let paymentStatus =
+      "UNPAID";
+
+
+    if (
+      amountPaid > 0 &&
+      amountPaid < grandTotal
+    ) {
+
+      paymentStatus =
+        "PARTIAL";
+
+    }
+    else if (
+      amountPaid >= grandTotal &&
+      grandTotal > 0
+    ) {
+
+      paymentStatus =
+        "PAID";
+
+    }
+
+
+    document.getElementById(
+      "subtotal"
+    ).textContent =
+      subtotal.toFixed(2);
+
+
+    document.getElementById(
+      "discount-display"
+    ).textContent =
+      discount.toFixed(2);
+
+
+    document.getElementById(
+      "tax-amount"
+    ).textContent =
+      taxAmount.toFixed(2);
+
+
+    document.getElementById(
+      "grand-total"
+    ).textContent =
+      grandTotal.toFixed(2);
+
+
+    document.getElementById(
+      "amount-display"
+    ).textContent =
+      amountPaid.toFixed(2);
+
+
+    document.getElementById(
+      "balance"
+    ).textContent =
+      balance.toFixed(2);
+
+
+    document.getElementById(
+      "repay-amount"
+    ).textContent =
+      repayAmount.toFixed(2);
+
+
+    document.getElementById(
+      "payment-status"
+    ).textContent =
+      paymentStatus;
+
+
+    const statusBox =
+      document.getElementById(
+        "status-box"
+      );
+
+
+    statusBox.className =
+      "status " +
+      paymentStatus.toLowerCase();
+
+  }
+
+
+  /* =========================================================
+     RESET PRODUCT SELECTOR
+     ========================================================= */
+
+  function resetProductSelector() {
+
+    productSelect.value = "";
+
+    productSearch.value = "";
+
+    priceInput.value = "";
+
+    quantityInput.value = 1;
+
+    stockDisplay.textContent =
+      "Select a product to see available stock.";
+
+    stockDisplay.className =
+      "stock-display";
+
+    addProductButton.disabled =
+      true;
+
+
+    /*
+     * Make all product options visible
+     * again after search.
+     */
+
+    productSelect
+      .querySelectorAll("option")
+      .forEach(
+        function (option) {
+
+          option.hidden = false;
+
+        }
+      );
+
+  }
+
+
+  /* =========================================================
+     EMPTY BILL
+     ========================================================= */
+
+  function showEmptyRow() {
+
+    const row =
+      document.createElement("tr");
+
+
+    row.id =
+      "empty-row";
+
+
+    row.innerHTML = `
+
+      <td
+        colspan="6"
+        class="empty-row"
+      >
+        No products added yet.
+      </td>
+
+    `;
+
+
+    billItems.appendChild(
+      row
+    );
+
+  }
+
+
+  /* =========================================================
+     FULL PAYMENT
+     ========================================================= */
+
+  function fillFullPayment() {
+
+    const grandTotal =
+      parseFloat(
+        document.getElementById(
+          "grand-total"
+        ).textContent
+      ) || 0;
+
+
+    document.getElementById(
+      "amount-paid"
+    ).value =
+      grandTotal;
+
+
+    updateGrandTotal();
+
+  }
+
+
+  /* =========================================================
+     PAYMENT INPUT LISTENERS
+     ========================================================= */
+
+  document
+    .getElementById("discount")
+    .addEventListener(
+      "input",
+      updateGrandTotal
+    );
+
+
+  document
+    .getElementById("tax")
+    .addEventListener(
+      "input",
+      updateGrandTotal
+    );
+
+
+  document
+    .getElementById("amount-paid")
+    .addEventListener(
+      "input",
+      updateGrandTotal
+    );
+
+
+  /* =========================================================
+     NEW CUSTOMER FORM
+     ========================================================= */
+
+  function showCustomerForm() {
+
+    document.getElementById(
+      "new-customer-form"
+    ).style.display =
+      "block";
+
+  }
+
+
+  function hideCustomerForm() {
+
+    document.getElementById(
+      "new-customer-form"
+    ).style.display =
+      "none";
+
+  }
+
+
+  /* =========================================================
+     SAVE NEW CUSTOMER
+     ========================================================= */
+
+  function saveNewCustomer() {
+
+    const name =
+      document.getElementById(
+        "new-customer-name"
+      ).value.trim();
+
+
+    const phone =
+      document.getElementById(
+        "new-customer-phone"
+      ).value.trim();
+
+
+    const address =
+      document.getElementById(
+        "new-customer-address"
+      ).value.trim();
+
+
+    if (!name) {
+
+      alert(
+        "Please enter customer name."
+      );
+
+      return;
+
+    }
+
+
+    if (!phone) {
+
+      alert(
+        "Please enter phone number."
+      );
+
+      return;
+
+    }
+
+
+    const formData =
+      new FormData();
+
+
+    formData.append(
+      "name",
+      name
+    );
+
+
+    formData.append(
+      "phone",
+      phone
+    );
+
+
+    formData.append(
+      "address",
+      address
+    );
+
+
+    fetch(
+      "{% url 'create_customer' %}",
+      {
+        method: "POST",
+
+        headers: {
+          "X-CSRFToken":
+            getCookie(
+              "csrftoken"
+            )
+        },
+
+        body: formData
+      }
+    )
+
+      .then(
+        response =>
+          response.json()
+      )
+
+      .then(
+        data => {
+
+          if (!data.success) {
+
+            alert(
+              data.error ||
+              "Unable to create customer."
+            );
+
+            return;
+
+          }
+
+
+          const customerSelect =
+            document.getElementById(
+              "customer"
+            );
+
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+
+          option.value =
+            data.id;
+
+
+          option.textContent =
+            data.name +
+            " - " +
+            data.phone;
+
+
+          customerSelect.appendChild(
+            option
+          );
+
+
+          customerSelect.value =
+            data.id;
+
+
+          document.getElementById(
+            "new-customer-name"
+          ).value = "";
+
+
+          document.getElementById(
+            "new-customer-phone"
+          ).value = "";
+
+
+          document.getElementById(
+            "new-customer-address"
+          ).value = "";
+
+
+          hideCustomerForm();
+
+
+          alert(
+            "Customer added successfully."
+          );
+
+        }
+      )
+
+      .catch(
+        error => {
+
+          console.error(
+            error
+          );
+
+
+          alert(
+            "Something went wrong while creating the customer."
+          );
+
+        }
+      );
+
+  }
+
+
+  /* =========================================================
+     CSRF COOKIE
+     ========================================================= */
+
+  function getCookie(name) {
+
+    let cookieValue =
+      null;
+
+
+    if (
+      document.cookie &&
+      document.cookie !== ""
+    ) {
+
+      const cookies =
+        document.cookie.split(
+          ";"
+        );
+
+
+      for (
+        let cookie of cookies
+      ) {
+
+        cookie =
+          cookie.trim();
+
+
+        if (
+          cookie.substring(
+            0,
+            name.length + 1
+          ) ===
+          (
+            name + "="
+          )
+        ) {
+
+          cookieValue =
+            decodeURIComponent(
+              cookie.substring(
+                name.length + 1
+              )
+            );
+
+
+          break;
+
+        }
+
+      }
+
+    }
+
+
+    return cookieValue;
+
+  }
+
+
+  /* =========================================================
+     HTML ESCAPE
+     ========================================================= */
+
+  function escapeHtml(value) {
+
+    const div =
+      document.createElement(
+        "div"
+      );
+
+
+    div.textContent =
+      value;
+
+
+    return div.innerHTML;
+
+  }
+
+
+  /* =========================================================
+     BILL SUBMISSION VALIDATION
+     ========================================================= */
+
+  document
+    .getElementById("billing-form")
+    .addEventListener(
+      "submit",
+      function (event) {
+
+        const rows =
+          document.querySelectorAll(
+            "#bill-items tr[data-product-id]"
+          );
+
+
+        if (
+          rows.length === 0
+        ) {
+
+          event.preventDefault();
+
+          alert(
+            "Please add at least one product to the bill."
+          );
+
+          return;
+
+        }
+
+
+        /*
+         * Validate every row before submitting.
+         */
+
+        let invalid =
+          false;
+
+
+        rows.forEach(
+          function (row) {
+
+            const quantityInput =
+              row.querySelector(
+                ".quantity-input"
+              );
+
+
+            const discountInput =
+              row.querySelector(
+                ".item-discount-input"
+              );
+
+
+            const quantity =
+              parseInt(
+                quantityInput.value
+              ) || 0;
+
+
+            const discount =
+              parseFloat(
+                discountInput.value
+              ) || 0;
+
+
+            const price =
+              parseFloat(
+                row.dataset.price
+              ) || 0;
+
+
+            const stock =
+              parseInt(
+                row.dataset.stock
+              ) || 0;
+
+
+            if (
+              quantity <= 0 ||
+              quantity > stock
+            ) {
+
+              invalid =
+                true;
+
+            }
+
+
+            if (
+              discount < 0 ||
+              discount >
+              (
+                price * quantity
+              )
+            ) {
+
+              invalid =
+                true;
+
+            }
+
+          }
+        );
+
+
+        if (invalid) {
+
+          event.preventDefault();
+
+          alert(
+            "Please check product quantities and discounts before creating the bill."
+          );
+
+          return;
+
+        }
+
+
+        /*
+         * Prevent accidental double submission.
+         */
+
+        createBillButton.disabled =
+          true;
+
+        createBillButton.textContent =
+          "CREATING BILL...";
+
+      }
+    );
+
+
+  /* =========================================================
+     INITIAL STATE
+     ========================================================= */
+
+  addProductButton.disabled =
+    true;
+
+  updateGrandTotal();
+
+</script>
+
+{% endblock %}

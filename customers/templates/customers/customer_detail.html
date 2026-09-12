@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ customer.name }} - SLEEP STUDIO
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .customer-detail-container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 30px;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        text-decoration: none;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .back-link:hover {
+        color: #222;
+    }
+
+    .customer-header {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .customer-header h2 {
+        margin: 0 0 8px;
+        font-size: 26px;
+    }
+
+    .customer-info {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .customer-info p {
+        margin: 3px 0;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .summary-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .summary-label {
+        color: #777;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    .summary-value {
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .outstanding {
+        color: #b45309;
+    }
+
+    .history-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .history-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .history-header h3 {
+        margin: 0;
+        font-size: 17px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        text-align: left;
+        padding: 14px 16px;
+        background: #f8f8f8;
+        border-bottom: 1px solid #e5e7eb;
+        color: #777;
+        font-size: 12px;
+    }
+
+    td {
+        padding: 15px 16px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    .invoice-number {
+        font-weight: 600;
+    }
+
+    .status {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .status-paid {
+        background: #e8f5e9;
+        color: #26733d;
+    }
+
+    .status-partial {
+        background: #fff4e5;
+        color: #a15c00;
+    }
+
+    .status-unpaid {
+        background: #fdecec;
+        color: #b42318;
+    }
+
+    .view-btn {
+        display: inline-block;
+        padding: 7px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #333;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .view-btn:hover {
+        background: #f5f5f5;
+    }
+
+    .empty-history {
+        padding: 40px;
+        text-align: center;
+        color: #888;
+        font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+
+        .summary-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+    }
+
+    @media (max-width: 600px) {
+
+        .customer-detail-container {
+            padding: 20px;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+    .edit-customer-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: #222;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.edit-customer-btn:hover {
+    opacity: 0.9;
+}
+</style>
+
+
+<main class="customer-detail-container">
+
+
+    <a href="{% url 'customer_list' %}" class="back-link">
+        ← Back to Customers
+    </a>
+
+
+    <!-- ================= CUSTOMER INFO ================= -->
+
+    <div class="customer-header">
+
+        <h2>
+            {{ customer.name }}
+        </h2>
+
+        <div class="customer-info">
+
+            <p>
+                <strong>Phone:</strong>
+                {{ customer.phone }}
+            </p>
+
+            <p>
+                <strong>Address:</strong>
+
+                {% if customer.address %}
+                {{ customer.address }}
+                {% else %}
+                —
+                {% endif %}
+
+            </p>
+           
+
+        </div>
+         <a href="{% url 'customer_edit' customer.id %}" class="edit-customer-btn">
+                ✏ Edit Customer
+            </a>
+
+    </div>
+
+
+    <!-- ================= SUMMARY ================= -->
+
+    <div class="summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                TOTAL BILLS
+            </div>
+
+            <div class="summary-value">
+                {{ total_bills }}
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                TOTAL PURCHASES
+            </div>
+
+            <div class="summary-value">
+                ₹{{ total_purchases|floatformat:2 }}
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                TOTAL PAID
+            </div>
+
+            <div class="summary-value">
+                ₹{{ total_paid|floatformat:2 }}
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                OUTSTANDING
+            </div>
+
+            <div class="summary-value outstanding">
+                ₹{{ outstanding|floatformat:2 }}
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ================= PURCHASE HISTORY ================= -->
+
+    <div class="history-card">
+
+        <div class="history-header">
+
+            <h3>
+                Purchase History
+            </h3>
+
+        </div>
+
+
+        {% if invoices %}
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Invoice
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Total
+                        </th>
+
+                        <th>
+                            Paid
+                        </th>
+
+                        <th>
+                            Balance
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for invoice in invoices %}
+
+                    <tr>
+
+                        <td class="invoice-number">
+                            {{ invoice.invoice_number }}
+                        </td>
+
+                        <td>
+                            {{ invoice.date|date:"d M Y" }}
+                        </td>
+
+                        <td>
+                            ₹{{ invoice.grand_total|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            ₹{{ invoice.amount_paid|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            ₹{{ invoice.balance|floatformat:2 }}
+                        </td>
+
+                        <td>
+
+                            {% if invoice.payment_status == "PAID" %}
+
+                            <span class="status status-paid">
+                                PAID
+                            </span>
+
+                            {% elif invoice.payment_status == "PARTIAL" %}
+
+                            <span class="status status-partial">
+                                PARTIAL
+                            </span>
+
+                            {% else %}
+
+                            <span class="status status-unpaid">
+                                UNPAID
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a href="{% url 'invoice_detail' invoice.id %}" class="view-btn">
+                                View
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-history">
+            No purchase history available.
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+</main>
+
+{% endblock %}

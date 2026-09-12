@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-container">
+
+   <div class="page-header">
+    <div>
+        <h2>Payment History</h2>
+        <p>All recorded customer payments</p>
+    </div>
+
+    <div class="header-actions">
+        <a href="{% url 'invoice_history' %}" class="header-btn">
+            Invoice History
+        </a>
+
+        <a href="{% url 'outstanding_bills' %}" class="header-btn">
+            Outstanding
+        </a>
+    </div>
+</div>
+
+    <div class="card">
+
+        {% if payments %}
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for payment in payments %}
+
+                    <tr>
+
+                        <td>
+                            <a
+                                href="{% url 'invoice_detail' payment.invoice.id %}"
+                                class="invoice-link"
+                            >
+                                {{ payment.invoice.invoice_number }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {% if payment.invoice.customer %}
+                                <strong>
+                                    {{ payment.invoice.customer.name }}
+                                </strong>
+                                <br>
+                                <small>
+                                    {{ payment.invoice.customer.phone }}
+                                </small>
+                            {% else %}
+                                Walk-in Customer
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ payment.date|date:"d M Y, h:i A" }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                ₹{{ payment.amount }}
+                            </strong>
+                        </td>
+
+                        <td>
+
+                            <span class="method-badge">
+
+                                {% if payment.method == "CASH" %}
+                                    Cash
+                                {% elif payment.method == "UPI" %}
+                                    UPI
+                                {% elif payment.method == "CARD" %}
+                                    Card
+                                {% elif payment.method == "BANK" %}
+                                    Bank Transfer
+                                {% else %}
+                                    {{ payment.method }}
+                                {% endif %}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+                            {% if payment.reference %}
+                                {{ payment.reference }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                ₹
+            </div>
+
+            <h2>No Payments Yet</h2>
+
+            <p>
+                Payment transactions will appear here
+                when payments are recorded.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<style>
+
+.page-container {
+    max-width: 1400px;
+    margin: 28px auto 0;
+    padding: 0 28px;
+    box-sizing: border-box;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 20px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border: 1px solid #d8d8d8;
+    border-radius: 7px;
+    background: #fff;
+    color: #333;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: 0.15s ease;
+}
+
+.header-btn:hover {
+    background: #f5f5f5;
+    border-color: #c8c8c8;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 6px 0 0;
+    color: #777;
+    font-size: 14px;
+}
+
+
+/* MAIN CARD */
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #e4e4e4;
+    box-shadow: none;
+}
+
+
+/* TABLE */
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+td {
+    padding: 14px;
+    border-bottom: 1px solid #eeeeee;
+    font-size: 14px;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background: #fafafa;
+}
+
+td small {
+    color: #888;
+}
+
+
+/* INVOICE LINK */
+
+.invoice-link {
+    color: #222;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.invoice-link:hover {
+    text-decoration: underline;
+}
+
+
+/* PAYMENT METHOD */
+
+.method-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #f2f2f2;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+
+
+
+/* EMPTY STATE */
+
+.empty-state {
+    text-align: center;
+    padding: 55px 20px;
+}
+
+.empty-icon {
+    font-size: 38px;
+    margin-bottom: 14px;
+}
+
+.empty-state h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+}
+
+.empty-state p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .page-container {
+        margin-top: 20px;
+        padding: 0 16px;
+    }
+
+    .card {
+        padding: 15px;
+    }
+
+    th,
+    td {
+        white-space: nowrap;
+    }
+
+}
+
+</style>
+
+{% endblock %}

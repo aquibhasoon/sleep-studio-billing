@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Invoice {{ invoice.invoice_number }} | SLEEP STUDIO</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f4f6;
+      color: #222;
+      margin: 0;
+      padding: 32px 20px;
+    }
+
+    .invoice {
+      max-width: 850px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 42px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+    }
+
+    /* =========================
+       HEADER
+       ========================= */
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      border-bottom: 2px solid #222;
+      padding-bottom: 22px;
+      margin-bottom: 28px;
+    }
+
+    .shop-name {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .shop-tagline {
+      font-size: 14px;
+      color: #666;
+      margin: 0 0 14px;
+    }
+
+    .shop-details {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #444;
+      margin: 0;
+    }
+
+    .invoice-title {
+      text-align: right;
+      min-width: 210px;
+    }
+
+    .invoice-title h1 {
+      margin: 0 0 12px;
+      font-size: 30px;
+      letter-spacing: 1px;
+    }
+
+    .invoice-meta {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    .invoice-meta strong {
+      color: #222;
+    }
+
+    /* =========================
+       CUSTOMER
+       ========================= */
+
+    .details {
+      margin-bottom: 28px;
+      padding: 18px 20px;
+      background: #f8f8f8;
+      border: 1px solid #eeeeee;
+    }
+
+    .details-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 8px;
+    }
+
+    .customer-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 4px;
+    }
+
+    .customer-info {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* =========================
+       ITEMS TABLE
+       ========================= */
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .items-table th {
+      background: #222;
+      color: white;
+      padding: 11px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .items-table td {
+      padding: 12px;
+      border-bottom: 1px solid #e5e5e5;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .items-table tbody tr:last-child td {
+      border-bottom: 1px solid #ccc;
+    }
+
+    .items-table .number {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .product-name {
+      font-weight: 600;
+    }
+
+    .product-details {
+      display: block;
+      font-size: 11px;
+      color: #888;
+      margin-top: 3px;
+    }
+
+    /* =========================
+       TOTALS
+       ========================= */
+
+    .totals {
+      width: 320px;
+      margin-left: auto;
+      margin-top: 24px;
+    }
+
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+
+    .totals-label {
+      color: #555;
+    }
+
+    .totals-value {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .grand-total {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      border-top: 2px solid #222;
+      margin-top: 8px;
+      padding-top: 12px;
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    /* =========================
+       PAYMENT
+       ========================= */
+
+    .payment {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f8f8;
+      border: 1px solid #eeeeee;
+    }
+
+    .payment h3 {
+      margin: 0 0 16px;
+      font-size: 16px;
+    }
+
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+
+    .payment-row span:first-child {
+      color: #666;
+    }
+
+    .payment-row strong {
+      text-align: right;
+    }
+
+    .status {
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px solid #ddd;
+    }
+
+    /* =========================
+       PAYMENT HISTORY
+       ========================= */
+
+    .payment-history-section {
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 1px solid #ddd;
+    }
+
+    .payment-history-section h3 {
+      margin: 0 0 15px;
+      font-size: 17px;
+    }
+
+    .payment-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .payment-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .payment-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      color: #666;
+      background: #f5f5f5;
+      border-bottom: 1px solid #ddd;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .payment-table td {
+      padding: 11px 12px;
+      font-size: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* =========================
+       FOOTER
+       ========================= */
+
+    .invoice-footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 30px;
+    }
+
+    .thank-you {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    .thank-you strong {
+      color: #222;
+    }
+
+    .signature {
+      text-align: center;
+      min-width: 180px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .signature-line {
+      border-top: 1px solid #222;
+      margin-bottom: 7px;
+    }
+
+    /* =========================
+       ACTIONS
+       ========================= */
+
+    .actions {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 25px;
+      border-top: 1px solid #eee;
+    }
+
+    button,
+    .new-bill,
+    .collect-payment-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 22px;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      margin: 5px;
+      transition: 0.2s ease;
+    }
+
+    button {
+      background: #222;
+      color: white;
+      border: 1px solid #222;
+    }
+
+    button:hover {
+      background: #444;
+    }
+
+    .collect-payment-btn {
+      background: #222;
+      color: white;
+      border: 1px solid #222;
+    }
+
+    .collect-payment-btn:hover {
+      background: #444;
+      transform: translateY(-1px);
+    }
+
+    .new-bill {
+      background: #f1f1f1;
+      color: #222;
+      border: 1px solid #ddd;
+    }
+
+    .new-bill:hover {
+      background: #e5e5e5;
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @media (max-width: 700px) {
+
+      body {
+        padding: 15px;
+      }
+
+      .invoice {
+        padding: 24px 20px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .invoice-title {
+        text-align: left;
+      }
+
+      .shop-name {
+        font-size: 26px;
+      }
+
+      .invoice-title h1 {
+        font-size: 26px;
+      }
+
+      .details {
+        padding: 15px;
+      }
+
+      .items-table th,
+      .items-table td {
+        padding: 9px 7px;
+        font-size: 12px;
+      }
+
+      .totals {
+        width: 100%;
+      }
+
+      .invoice-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .signature {
+        margin-top: 25px;
+      }
+
+      .actions {
+        display: flex;
+        flex-direction: column;
+      }
+
+      button,
+      .new-bill,
+      .collect-payment-btn {
+        width: 100%;
+        margin: 5px 0;
+      }
+    }
+
+    /* =========================
+       PRINT
+       ========================= */
+
+    @media print {
+
+      @page {
+        size: A4;
+        margin: 15mm;
+      }
+
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+
+      .invoice {
+        max-width: none;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+      }
+
+      .actions {
+        display: none !important;
+      }
+
+      .payment-history-section {
+        margin-top: 20px;
+      }
+
+      table {
+        page-break-inside: auto;
+      }
+
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+
+      .details,
+      .payment {
+        background: white;
+      }
+
+      .items-table th {
+        background: #222 !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .invoice-footer {
+        margin-top: 35px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="invoice">
+
+    <!-- =========================
+         SHOP HEADER
+         ========================= -->
+
+    <div class="header">
+
+      <div>
+
+        <div class="shop-name">
+          SLEEP STUDIO
+        </div>
+
+        <p class="shop-tagline">
+          Mattress & Home Comfort
+        </p>
+
+        <p class="shop-details">
+          Thikkodi Panchayat,<br>
+          Thikkoti (P.O.) - 673529<br>
+          Phone: 7510800770
+        </p>
+
+      </div>
+
+      <div class="invoice-title">
+
+        <h1>
+          INVOICE
+        </h1>
+
+        <div class="invoice-meta">
+
+          <div>
+            Invoice No:
+            <strong>
+              {{ invoice.invoice_number }}
+            </strong>
+          </div>
+
+          <div>
+            Date:
+            <strong>
+              {{ invoice.date|date:"d M Y" }}
+            </strong>
+          </div>
+
+          <div>
+            Time:
+            <strong>
+              {{ invoice.date|date:"h:i A" }}
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         CUSTOMER DETAILS
+         ========================= -->
+
+    <div class="details">
+
+      <div class="details-title">
+        Bill To
+      </div>
+
+      {% if invoice.customer %}
+
+      <p class="customer-name">
+        {{ invoice.customer.name }}
+      </p>
+
+      <p class="customer-info">
+        Phone: {{ invoice.customer.phone }}
+
+        {% if invoice.customer.address %}
+        <br>
+        {{ invoice.customer.address }}
+        {% endif %}
+      </p>
+
+      {% else %}
+
+      <p class="customer-name">
+        Walk-in Customer
+      </p>
+
+      {% endif %}
+
+    </div>
+
+
+    <!-- =========================
+         PRODUCTS
+         ========================= -->
+
+    <table class="items-table">
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Product
+          </th>
+
+          <th class="number">
+            Qty
+          </th>
+
+          <th class="number">
+            Price
+          </th>
+
+          <th class="number">
+            Total
+          </th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {% for item in invoice.items.all %}
+
+        <tr>
+
+          <td>
+
+            <span class="product-name">
+              {{ item.product.name }}
+            </span>
+
+            {% if item.product.size or item.product.thickness %}
+
+            <span class="product-details">
+
+              {% if item.product.size %}
+              Size: {{ item.product.size }}
+              {% endif %}
+
+              {% if item.product.size and item.product.thickness %}
+              &nbsp; | &nbsp;
+              {% endif %}
+
+              {% if item.product.thickness %}
+              Thickness: {{ item.product.thickness }}
+              {% endif %}
+
+            </span>
+
+            {% endif %}
+
+          </td>
+
+          <td class="number">
+            {{ item.quantity }}
+          </td>
+
+          <td class="number">
+            ₹{{ item.unit_price }}
+          </td>
+
+          <td class="number">
+            ₹{{ item.total }}
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+
+    <!-- =========================
+         TOTALS
+         ========================= -->
+
+    <div class="totals">
+
+      <div class="totals-row">
+
+        <span class="totals-label">
+          Subtotal
+        </span>
+
+        <span class="totals-value">
+          ₹{{ invoice.subtotal }}
+        </span>
+
+      </div>
+
+      <div class="totals-row">
+
+        <span class="totals-label">
+          Discount
+        </span>
+
+        <span class="totals-value">
+          ₹{{ invoice.discount }}
+        </span>
+
+      </div>
+
+      <div class="totals-row">
+
+        <span class="totals-label">
+          Tax ({{ invoice.tax_percentage }}%)
+        </span>
+
+        <span class="totals-value">
+          ₹{{ invoice.tax_amount }}
+        </span>
+
+      </div>
+
+      <div class="grand-total">
+
+        <span>
+          Grand Total
+        </span>
+
+        <span>
+          ₹{{ invoice.grand_total }}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         PAYMENT DETAILS
+         ========================= -->
+
+    <div class="payment">
+
+      <h3>
+        Payment Details
+      </h3>
+
+      <div class="payment-row">
+
+        <span>
+          Amount Received
+        </span>
+
+        <strong>
+          ₹{{ amount_received }}
+        </strong>
+
+      </div>
+
+      <div class="payment-row">
+
+        <span>
+          Amount Applied
+        </span>
+
+        <strong>
+          ₹{{ invoice.amount_paid }}
+        </strong>
+
+      </div>
+
+      <div class="payment-row">
+
+        <span>
+          Balance
+        </span>
+
+        <strong>
+          ₹{{ invoice.balance }}
+        </strong>
+
+      </div>
+
+      {% if change_amount > 0 %}
+
+      <div class="payment-row">
+
+        <span>
+          Change / Repay
+        </span>
+
+        <strong>
+          ₹{{ change_amount }}
+        </strong>
+
+      </div>
+
+      {% endif %}
+
+      <div class="payment-row status">
+
+        <span>
+          Payment Status
+        </span>
+
+        <strong>
+          {{ invoice.get_payment_status_display }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         PAYMENT HISTORY
+         ========================= -->
+
+    {% if payments %}
+
+    <div class="payment-history-section">
+
+      <h3>
+        Payment History
+      </h3>
+
+      <div class="payment-table-wrapper">
+
+        <table class="payment-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Date
+              </th>
+
+              <th>
+                Method
+              </th>
+
+              <th>
+                Reference
+              </th>
+
+              <th>
+                Amount
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {% for payment in payments %}
+
+            <tr>
+
+              <td>
+                {{ payment.date|date:"d M Y, h:i A" }}
+              </td>
+
+              <td>
+
+                {% if payment.method == "CASH" %}
+                Cash
+                {% elif payment.method == "UPI" %}
+                UPI
+                {% elif payment.method == "CARD" %}
+                Card
+                {% elif payment.method == "BANK" %}
+                Bank Transfer
+                {% else %}
+                {{ payment.method }}
+                {% endif %}
+
+              </td>
+
+              <td>
+
+                {% if payment.reference %}
+                {{ payment.reference }}
+                {% else %}
+                —
+                {% endif %}
+
+              </td>
+
+              <td>
+                ₹{{ payment.amount }}
+              </td>
+
+            </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+
+    <div class="invoice-footer">
+
+      <div class="thank-you">
+
+        <strong>
+          Thank you for choosing SLEEP STUDIO!
+        </strong>
+
+        <br>
+
+        We appreciate your business.
+
+        <br>
+
+        Phone: 7510800770
+
+      </div>
+
+
+      <div class="signature">
+
+        <div class="signature-line"></div>
+
+        Authorized Signature
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         ACTION BUTTONS
+         ========================= -->
+
+    <div class="actions">
+
+      <button onclick="window.print()">
+        PRINT INVOICE
+      </button>
+
+      <a href="{% url 'invoice_pdf' invoice.id %}" class="new-bill">
+        DOWNLOAD PDF
+      </a>
+
+
+      {% if invoice.balance > 0 %}
+
+      <a href="{% url 'collect_payment' invoice.id %}" class="collect-payment-btn">
+        Collect Payment
+      </a>
+
+      {% endif %}
+
+
+      <a href="{% url 'create_sale' %}" class="new-bill">
+        NEW BILL
+      </a>
+
+    </div>
+
+  </div>
+
+</body>
+
+</html>

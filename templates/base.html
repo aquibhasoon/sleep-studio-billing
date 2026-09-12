@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}SLEEP STUDIO{% endblock %}</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f6f8;
+            color: #222;
+        }
+
+        /* ================= HEADER ================= */
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 32px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+
+        .brand p {
+            margin: 4px 0 0;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .navigation {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navigation a {
+            text-decoration: none;
+            color: #555;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .navigation a:hover {
+            background: #f1f1f1;
+        }
+
+        .navigation a.active {
+            background: #222;
+            color: white;
+        }
+
+        .logout-btn {
+            border: none;
+            background: #222;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .logout-btn:hover {
+            background: #444;
+        }
+
+        /* ================= MAIN ================= */
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 700px) {
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .navigation a {
+                display: none;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <header class="header">
+
+        <div class="brand">
+
+            <h1>SLEEP STUDIO</h1>
+
+            <p>
+                Billing & Inventory Management
+            </p>
+
+        </div>
+
+
+        <div class="navigation">
+
+            <a href="{% url 'dashboard' %}">
+                Dashboard
+            </a>
+
+            <a href="{% url 'create_sale' %}">
+                New Bill
+            </a>
+
+            <a href="{% url 'customer_list' %}">
+                Customers
+            </a>
+
+            <a href="{% url 'inventory' %}">
+                Inventory
+            </a>
+
+            <a href="{% url 'manage_products' %}">
+                Products
+            </a>
+
+            <a href="{% url 'payment_history' %}">
+                Payment History
+            </a>
+
+            <a href="{% url 'reports_page' %}">
+                Reports
+            </a>
+
+
+
+            <form method="POST" action="{% url 'logout' %}">
+
+                {% csrf_token %}
+
+                <button type="submit" class="logout-btn">
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </header>
+
+
+    {% block content %}
+
+    {% endblock %}
+
+
+</body>
+
+</html>
