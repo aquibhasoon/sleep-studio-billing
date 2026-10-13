@@ -1,15 +1,16 @@
-
 """
 Django settings for billing_system project.
 """
 
-from pathlib import Path
-from dotenv import load_dotenv
 import os
+from pathlib import Path
+
+import dj_database_url
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env locally. Cloud Run uses configured environment variables.
+# Load local settings. Render will provide environment variables separately.
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -37,7 +38,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "accounts",
     "products",
     "customers",
@@ -75,20 +75,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "billing_system.wsgi.application"
 
-# Local development uses SQLite.
-# Configure DB_NAME, DB_USER, DB_PASSWORD and DB_HOST on Cloud Run
-# to use PostgreSQL.
-if os.getenv("DB_NAME"):
+# Neon PostgreSQL in production; SQLite for local development.
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
     DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ["DB_NAME"],
-            "USER": os.getenv("DB_USER", ""),
-            "PASSWORD": os.getenv("DB_PASSWORD", ""),
-            "HOST": os.getenv("DB_HOST", ""),
-            "PORT": os.getenv("DB_PORT", "5432"),
-            "CONN_MAX_AGE": 60,
-        }
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=60,
+            ssl_require=True,
+        )
     }
 else:
     DATABASES = {
@@ -142,7 +138,7 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
-# Enable secure cookie settings only in production HTTPS deployments.
+# Secure cookies and proxy HTTPS handling in production.
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True
