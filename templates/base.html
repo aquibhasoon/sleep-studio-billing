@@ -1,8 +1,7 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -23,13 +22,19 @@
         /* ================= HEADER ================= */
 
         .header {
+            position: relative;
+            z-index: 100;
             background: white;
             border-bottom: 1px solid #e5e7eb;
             padding: 16px 32px;
-
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
+        }
+
+        .brand {
+            flex-shrink: 0;
         }
 
         .brand h1 {
@@ -53,9 +58,10 @@
         .navigation a {
             text-decoration: none;
             color: #555;
-            padding: 8px 12px;
+            padding: 9px 12px;
             border-radius: 6px;
             font-size: 13px;
+            white-space: nowrap;
         }
 
         .navigation a:hover {
@@ -65,6 +71,11 @@
         .navigation a.active {
             background: #222;
             color: white;
+        }
+
+        .logout-form {
+            margin: 0;
+            flex-shrink: 0;
         }
 
         .logout-btn {
@@ -81,104 +92,219 @@
             background: #444;
         }
 
+        /* Mobile menu button: hidden on desktop */
+
+        .menu-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 7px;
+            background: white;
+            color: #222;
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1;
+        }
+
         /* ================= MAIN ================= */
 
         .container {
+            width: 100%;
             max-width: 1200px;
             margin: auto;
             padding: 30px;
         }
 
-        /* ================= RESPONSIVE ================= */
+        /* ================= MOBILE NAVIGATION ================= */
 
-        @media (max-width: 700px) {
-
+        @media (max-width: 1050px) {
             .header {
                 padding: 15px 20px;
+                flex-wrap: wrap;
+            }
+
+            .menu-toggle {
+                display: inline-flex;
+                margin-left: auto;
+            }
+
+            .navigation {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 4px;
+                padding-top: 12px;
+                border-top: 1px solid #eee;
+            }
+
+            .navigation.open {
+                display: flex;
             }
 
             .navigation a {
-                display: none;
+                display: block;
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .navigation .logout-form {
+                width: 100%;
+                padding-top: 6px;
+            }
+
+            .navigation .logout-btn {
+                width: 100%;
+                padding: 12px;
             }
 
             .container {
                 padding: 20px;
             }
+        }
 
+        @media (max-width: 480px) {
+            .header {
+                padding: 14px 16px;
+                gap: 12px;
+            }
+
+            .brand h1 {
+                font-size: 20px;
+            }
+
+            .brand p {
+                font-size: 11px;
+            }
+
+            .container {
+                padding: 16px;
+            }
         }
     </style>
-
 </head>
 
-
 <body>
-
 
     <header class="header">
 
         <div class="brand">
-
             <h1>SLEEP STUDIO</h1>
-
-            <p>
-                Billing & Inventory Management
-            </p>
-
+            <p>Billing &amp; Inventory Management</p>
         </div>
 
+        <button
+            type="button"
+            class="menu-toggle"
+            id="menuToggle"
+            aria-label="Open navigation menu"
+            aria-controls="mainNavigation"
+            aria-expanded="false"
+        >
+            &#9776;
+        </button>
 
-        <div class="navigation">
+        <nav class="navigation" id="mainNavigation">
 
-            <a href="{% url 'dashboard' %}">
+            <a href="{% url 'dashboard' %}"
+               class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                 Dashboard
             </a>
 
-            <a href="{% url 'create_sale' %}">
+            <a href="{% url 'create_sale' %}"
+               class="{% if request.resolver_match.url_name == 'create_sale' %}active{% endif %}">
                 New Bill
             </a>
 
-            <a href="{% url 'customer_list' %}">
+            <a href="{% url 'customer_list' %}"
+               class="{% if request.resolver_match.url_name == 'customer_list' or request.resolver_match.url_name == 'customer_detail' or request.resolver_match.url_name == 'customer_edit' %}active{% endif %}">
                 Customers
             </a>
 
-            <a href="{% url 'inventory' %}">
+            <a href="{% url 'inventory' %}"
+               class="{% if request.resolver_match.url_name == 'inventory' or request.resolver_match.url_name == 'stock_in' or request.resolver_match.url_name == 'stock_adjustment' or request.resolver_match.url_name == 'stock_history' %}active{% endif %}">
                 Inventory
             </a>
 
-            <a href="{% url 'manage_products' %}">
+            <a href="{% url 'manage_products' %}"
+               class="{% if request.resolver_match.url_name == 'manage_products' %}active{% endif %}">
                 Products
             </a>
 
-            <a href="{% url 'payment_history' %}">
+            <a href="{% url 'payment_history' %}"
+               class="{% if request.resolver_match.url_name == 'payment_history' or request.resolver_match.url_name == 'collect_payment' %}active{% endif %}">
                 Payment History
             </a>
 
-            <a href="{% url 'reports_page' %}">
+            <a href="{% url 'outstanding_bills' %}"
+               class="{% if request.resolver_match.url_name == 'outstanding_bills' %}active{% endif %}">
+                Outstanding Bills
+            </a>
+
+            <a href="{% url 'invoice_history' %}"
+               class="{% if request.resolver_match.url_name == 'invoice_history' or request.resolver_match.url_name == 'invoice_detail' %}active{% endif %}">
+                Invoice History
+            </a>
+
+            <a href="{% url 'reports_page' %}"
+               class="{% if request.resolver_match.url_name == 'reports_page' %}active{% endif %}">
                 Reports
             </a>
 
-
-
-            <form method="POST" action="{% url 'logout' %}">
-
+            <form method="POST" action="{% url 'logout' %}" class="logout-form">
                 {% csrf_token %}
-
                 <button type="submit" class="logout-btn">
                     Logout
                 </button>
-
             </form>
 
-        </div>
+        </nav>
 
     </header>
 
-
     {% block content %}
-
     {% endblock %}
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuToggle = document.getElementById("menuToggle");
+            const navigation = document.getElementById("mainNavigation");
+
+            menuToggle.addEventListener("click", function () {
+                const isOpen = navigation.classList.toggle("open");
+
+                menuToggle.setAttribute("aria-expanded", isOpen);
+                menuToggle.setAttribute(
+                    "aria-label",
+                    isOpen ? "Close navigation menu" : "Open navigation menu"
+                );
+                menuToggle.innerHTML = isOpen ? "&times;" : "&#9776;";
+            });
+
+            navigation.querySelectorAll("a").forEach(function (link) {
+                link.addEventListener("click", function () {
+                    navigation.classList.remove("open");
+                    menuToggle.setAttribute("aria-expanded", "false");
+                    menuToggle.setAttribute("aria-label", "Open navigation menu");
+                    menuToggle.innerHTML = "&#9776;";
+                });
+            });
+
+            window.addEventListener("resize", function () {
+                if (window.innerWidth > 1050) {
+                    navigation.classList.remove("open");
+                    menuToggle.setAttribute("aria-expanded", "false");
+                    menuToggle.setAttribute("aria-label", "Open navigation menu");
+                    menuToggle.innerHTML = "&#9776;";
+                }
+            });
+        });
+    </script>
 
 </body>
-
 </html>
+```
