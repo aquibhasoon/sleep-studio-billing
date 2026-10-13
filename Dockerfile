@@ -11,11 +11,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Temporary key used only while collecting static files during the build.
 RUN SECRET_KEY=build-only-placeholder python manage.py collectstatic --noinput
 
-CMD exec gunicorn billing_system.wsgi:application 
-    --bind 0.0.0.0:$PORT 
-    --workers 2 
-    --threads 4 
-    --timeout 120
+CMD ["sh", "-c", "exec gunicorn billing_system.wsgi:application --bind 0.0.0.0:${PORT} --workers 2 --threads 4 --timeout 120"]
